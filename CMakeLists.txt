@@ -1,10 +1,11 @@
-cmake_minimum_required(VERSION 3.5)
+cmake_minimum_required(VERSION 3.10)
 project(omnibot_bringup)
 
 find_package(ament_cmake REQUIRED)
 
-# Installiere den launch-Ordner
-install(DIRECTORY launch
+# Install launch files and any RViz configs bundled alongside
+install(
+  DIRECTORY launch
   DESTINATION share/${PROJECT_NAME}
 )
 
