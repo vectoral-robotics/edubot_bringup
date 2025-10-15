@@ -46,10 +46,15 @@ def generate_launch_description():
         'base_length': ('0.095', 'Half of robot length [m]'),
         'base_width': ('0.1025', 'Half of robot width [m]'),
         'ticks_per_rev': ('4320.0', 'Encoder ticks per wheel revolution'),
-        'encoder_dt': ('0.02', 'Encoder sampling interval [s]'),
+
+        # Timing / control behavior
         'cmd_timeout': ('0.5', 'Stop if no cmd_vel received for this time [s]'),
+        'odom_hz': ('50.0', 'Odometry update frequency [Hz]'),
+        'tf_hz': ('30.0', 'TF broadcast frequency [Hz]'),
+
+        # Layout / debug
         'mecanum_layout': ('X', 'Wheel roller layout: "X" or "O"'),
-        'log_commands': ('false', 'Enable debug logging of motor commands'),
+        'log_commands': ('true', 'Enable debug logging of motor commands'),
     }
 
     declare_args = [
@@ -70,8 +75,10 @@ def generate_launch_description():
     base_length = LaunchConfiguration('base_length')
     base_width = LaunchConfiguration('base_width')
     ticks_per_rev = LaunchConfiguration('ticks_per_rev')
-    encoder_dt = LaunchConfiguration('encoder_dt')
+
     cmd_timeout = LaunchConfiguration('cmd_timeout')
+    odom_hz = LaunchConfiguration('odom_hz')
+    tf_hz = LaunchConfiguration('tf_hz')
     mecanum_layout = LaunchConfiguration('mecanum_layout')
     log_commands = LaunchConfiguration('log_commands')
 
@@ -82,7 +89,7 @@ def generate_launch_description():
         'omnibot.urdf.xacro',
     ])
 
-    # Optional: make Python logs line-buffered in terminals
+    # Optional: make Python logs colorized in terminals
     env = SetEnvironmentVariable('RCUTILS_COLORIZED_OUTPUT', '1')
 
     # -----------------------------
@@ -95,8 +102,6 @@ def generate_launch_description():
         namespace=ns,
         output='screen',
         parameters=[{
-            # If your Xacro supports macro args, you can pass them here, e.g.:
-            # 'robot_description': Command(['xacro ', urdf_xacro, ' use_sim:=', use_sim]),
             'robot_description': Command(['xacro ', urdf_xacro]),
         }],
     )
@@ -115,10 +120,11 @@ def generate_launch_description():
             'base_length': base_length,
             'base_width': base_width,
             'ticks_per_rev': ticks_per_rev,
-            'encoder_dt': encoder_dt,
             'cmd_timeout': cmd_timeout,
             'mecanum_layout': mecanum_layout,
             'log_commands': log_commands,
+            'odom_hz': odom_hz,
+            'tf_hz': tf_hz,
         }],
     )
 
