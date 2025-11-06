@@ -28,7 +28,7 @@ def generate_launch_description():
         'namespace': ('', 'ROS namespace for all nodes'),
         'use_rviz': ('true', 'Start RViz2 visualization'),
         'use_sim': ('false', 'Run in simulation mode (no real hardware)'),
-        'port': ('/dev/ttyUSB0', 'Serial port for the Arduino controller'),
+        'port': ('/dev/ttyACM0', 'Serial port for the Arduino controller'),
         'baud': ('115200', 'Serial baud rate'),
         'wheel_radius': ('0.04', 'Wheel radius [m]'),
         'base_length': ('0.095', 'Half of robot length [m]'),
