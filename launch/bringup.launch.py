@@ -68,7 +68,7 @@ def generate_launch_description():
     urdf_xacro = PathJoinSubstitution([
         FindPackageShare('omnibot_description'),
         'urdf',
-        'omnibot.urdf.xacro',
+        'robot.urdf',
     ])
 
     # Optional: colorized console output
