@@ -124,6 +124,18 @@ def generate_launch_description():
         condition=IfCondition(use_rviz)
     )
 
+    # rosbridge WebSocket server – allows the web dashboard to publish /cmd_vel
+    rosbridge_node = Node(
+        package='rosbridge_server',
+        executable='rosbridge_websocket',
+        name='rosbridge_websocket',
+        output='screen',
+        parameters=[{
+            'port': 9090,
+            'address': '',
+        }],
+    )
+
     # -----------------------------
     # Return LaunchDescription
     # -----------------------------
@@ -132,5 +144,6 @@ def generate_launch_description():
         *declare_args,
         robot_state_publisher,
         hardware_node,
+        rosbridge_node,
         viz_launch,
     ])
