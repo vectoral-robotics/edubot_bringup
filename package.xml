@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package format="3">
-  <name>omnibot_bringup</name>
+  <name>edubot_bringup</name>
   <version>0.0.1</version>
   <description>Bringup launch files for the Omnidirectional Robot.</description>
 
@@ -10,8 +10,8 @@
   <buildtool_depend>ament_cmake</buildtool_depend>
 
   <!-- Runtime dependencies: bringup orchestrates these -->
-  <exec_depend>omnibot_description</exec_depend>
-  <exec_depend>omnibot_hardware</exec_depend>
+  <exec_depend>edubot_description</exec_depend>
+  <exec_depend>edubot_hardware</exec_depend>
   <exec_depend>robot_state_publisher</exec_depend>
   <exec_depend>rviz2</exec_depend>
   <exec_depend>xacro</exec_depend>

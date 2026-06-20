@@ -1,10 +1,10 @@
 """
-Bringup launch file for the OmniBot stack.
+Bringup launch file for the EduBot stack.
 
 Starts:
   - robot_state_publisher (URDF/Xacro)
-  - omnibot_hardware (real or simulated)
-  - optional RViz2 (via omnibot_viz)
+  - edubot_hardware (real or simulated)
+  - optional RViz2 (via edubot_viz)
 """
 
 from launch import LaunchDescription
@@ -66,7 +66,7 @@ def generate_launch_description():
 
     # Xacro file path (URDF)
     urdf_xacro = PathJoinSubstitution([
-        FindPackageShare('omnibot_description'),
+        FindPackageShare('edubot_description'),
         'urdf',
         'robot.urdf',
     ])
@@ -89,7 +89,7 @@ def generate_launch_description():
     )
 
     hardware_node = Node(
-        package='omnibot_hardware',
+        package='edubot_hardware',
         executable='hardware_node',
         name='hardware_node',
         namespace=ns,
@@ -111,12 +111,12 @@ def generate_launch_description():
     )
 
     # -----------------------------
-    # Include omnibot_viz (RViz)
+    # Include edubot_viz (RViz)
     # -----------------------------
     viz_launch = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             PathJoinSubstitution([
-                FindPackageShare('omnibot_viz'),
+                FindPackageShare('edubot_viz'),
                 'launch',
                 'bringup_view.launch.py'
             ])
