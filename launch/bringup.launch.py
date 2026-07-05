@@ -40,6 +40,9 @@ def generate_launch_description():
         "tf_hz": ("30.0", "TF broadcast frequency [Hz]"),
         "mecanum_layout": ("X", 'Wheel roller layout: "X" or "O"'),
         "log_commands": ("true", "Enable debug logging of motor commands"),
+        "use_leds": ("true", "Start the corner NeoPixel LED node"),
+        "led_count": ("4", "Number of corner NeoPixels"),
+        "led_brightness": ("0.4", "NeoPixel brightness [0.0-1.0]"),
     }
 
     declare_args = [
@@ -64,6 +67,9 @@ def generate_launch_description():
     tf_hz = LaunchConfiguration("tf_hz")
     mecanum_layout = LaunchConfiguration("mecanum_layout")
     log_commands = LaunchConfiguration("log_commands")
+    use_leds = LaunchConfiguration("use_leds")
+    led_count = LaunchConfiguration("led_count")
+    led_brightness = LaunchConfiguration("led_brightness")
 
     # Xacro file path (URDF)
     urdf_xacro = PathJoinSubstitution(
@@ -117,6 +123,25 @@ def generate_launch_description():
         ],
     )
 
+    # Corner status LEDs (NeoPixel over SPI on the Raspberry Pi 5).
+    # Runs in its own node; falls back to a no-op backend when use_sim is true
+    # or the SPI hardware/library is unavailable.
+    led_node = Node(
+        package="edubot_hardware",
+        executable="led_node",
+        name="led_node",
+        namespace=ns,
+        output="screen",
+        condition=IfCondition(use_leds),
+        parameters=[
+            {
+                "use_sim": use_sim,
+                "num_pixels": led_count,
+                "brightness": led_brightness,
+            }
+        ],
+    )
+
     # -----------------------------
     # Include edubot_viz (RViz)
     # -----------------------------
@@ -152,6 +177,7 @@ def generate_launch_description():
             *declare_args,
             robot_state_publisher,
             hardware_node,
+            led_node,
             rosbridge_node,
             viz_launch,
         ]
