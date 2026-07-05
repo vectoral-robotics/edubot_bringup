@@ -138,6 +138,9 @@ def generate_launch_description():
                 "use_sim": use_sim,
                 "num_pixels": led_count,
                 "brightness": led_brightness,
+                # Cool white — same shade as the boot animation so the
+                # breathing-to-steady transition is visually seamless.
+                "startup_color": [200, 225, 255],
             }
         ],
     )
