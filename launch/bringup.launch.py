@@ -4,16 +4,15 @@ Bringup launch file for the EduBot stack.
 Starts:
   - robot_state_publisher (URDF/Xacro)
   - edubot_hardware (real or simulated)
-  - optional RViz2 (via edubot_viz)
+  - corner NeoPixel LED node (optional)
+  - rosbridge WebSocket server
 """
 
 from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, SetEnvironmentVariable
-from launch.conditions import IfCondition
-from launch.launch_description_sources import PythonLaunchDescriptionSource
+from launch.actions import DeclareLaunchArgument, SetEnvironmentVariable
 from launch.substitutions import (
     Command,
     LaunchConfiguration,
@@ -27,7 +26,6 @@ def generate_launch_description():
     # -----------------------------
     args = {
         "namespace": ("", "ROS namespace for all nodes"),
-        "use_rviz": ("true", "Start RViz2 visualization"),
         "use_sim": ("false", "Run in simulation mode (no real hardware)"),
         "port": ("/dev/ttyACM0", "Serial port for the Arduino controller"),
         "baud": ("115200", "Serial baud rate"),
@@ -54,7 +52,6 @@ def generate_launch_description():
     # Convenience handles
     # -----------------------------
     ns = LaunchConfiguration("namespace")
-    use_rviz = LaunchConfiguration("use_rviz")
     use_sim = LaunchConfiguration("use_sim")
     port = LaunchConfiguration("port")
     baud = LaunchConfiguration("baud")
@@ -145,18 +142,6 @@ def generate_launch_description():
         ],
     )
 
-    # -----------------------------
-    # Include edubot_viz (RViz)
-    # -----------------------------
-    viz_launch = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            PathJoinSubstitution(
-                [FindPackageShare("edubot_viz"), "launch", "bringup_view.launch.py"]
-            )
-        ),
-        condition=IfCondition(use_rviz),
-    )
-
     # rosbridge WebSocket server - allows the web dashboard to publish /cmd_vel
     rosbridge_node = Node(
         package="rosbridge_server",
@@ -182,6 +167,5 @@ def generate_launch_description():
             hardware_node,
             led_node,
             rosbridge_node,
-            viz_launch,
         ]
     )
