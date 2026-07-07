@@ -13,6 +13,7 @@ from launch_ros.substitutions import FindPackageShare
 
 from launch import LaunchDescription
 from launch.actions import DeclareLaunchArgument, SetEnvironmentVariable
+from launch.conditions import IfCondition
 from launch.substitutions import (
     Command,
     LaunchConfiguration,
@@ -142,6 +143,15 @@ def generate_launch_description():
         ],
     )
 
+    # rosapi — exposes ROS services (topics, services, params) over rosbridge.
+    # Must run alongside rosbridge_websocket so clients can introspect the graph.
+    rosapi_node = Node(
+        package="rosapi",
+        executable="rosapi_node",
+        name="rosapi",
+        output="screen",
+    )
+
     # rosbridge WebSocket server - allows the web dashboard to publish /cmd_vel
     rosbridge_node = Node(
         package="rosbridge_server",
@@ -166,6 +176,7 @@ def generate_launch_description():
             robot_state_publisher,
             hardware_node,
             led_node,
+            rosapi_node,
             rosbridge_node,
         ]
     )
