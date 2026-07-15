@@ -16,7 +16,8 @@
   <exec_depend>edubot_description</exec_depend>
   <exec_depend>edubot_hardware</exec_depend>
   <exec_depend>robot_state_publisher</exec_depend>
-  <exec_depend>rviz2</exec_depend>
+  <exec_depend>rosbridge_server</exec_depend>
+  <exec_depend>rosapi</exec_depend>
   <exec_depend>xacro</exec_depend>
 
   <!-- Optional: include if you sometimes use the GUI publisher -->
