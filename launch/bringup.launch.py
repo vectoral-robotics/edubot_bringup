@@ -145,6 +145,9 @@ def generate_launch_description():
 
     # rosapi — exposes ROS services (topics, services, params) over rosbridge.
     # Must run alongside rosbridge_websocket so clients can introspect the graph.
+    # rosapi/rosbridge are deliberately left un-namespaced (unlike the robot
+    # nodes above): the dashboard connects to a fixed rosbridge endpoint, and
+    # rosbridge already sees the whole graph regardless of namespace.
     rosapi_node = Node(
         package="rosapi",
         executable="rosapi_node",
