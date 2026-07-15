@@ -7,15 +7,15 @@ Top-level launch files that bring up the [EduBot](https://github.com/vectoral-ro
 `edubot_bringup` is the entry point of the EduBot ROS 2 stack. Its launch files
 start everything needed to operate the robot in one command: the robot state
 publisher (URDF), the hardware interface ([`edubot_hardware`](https://github.com/vectoral-robotics/edubot_hardware)),
-a rosbridge WebSocket server for the dashboard, and optionally RViz
-([`edubot_viz`](https://github.com/vectoral-robotics/edubot_viz)). It orchestrates the
-other packages rather than containing robot logic itself.
+the corner status LEDs (`led_node`), and a rosbridge WebSocket server (+ rosapi)
+that the dashboard and Foxglove connect to. It orchestrates the other packages
+rather than containing robot logic itself.
 
 ## Installation
 
 Requires ROS 2 Humble. Build it in a colcon workspace together with the other
-EduBot packages it depends on (`edubot_description`, `edubot_hardware`,
-`edubot_viz`):
+EduBot packages it depends on (`edubot_description`, `edubot_hardware`), plus
+`rosbridge_server` and `rosapi` from the ROS distribution:
 
 ```bash
 cd ~/ros2_ws/src
@@ -34,9 +34,12 @@ Bring up the full robot:
 # On the real robot
 ros2 launch edubot_bringup bringup.launch.py
 
-# In simulation (no hardware), without RViz
-ros2 launch edubot_bringup bringup.launch.py use_sim:=true use_rviz:=false
+# In simulation (no hardware), without the corner LEDs
+ros2 launch edubot_bringup bringup.launch.py use_sim:=true use_leds:=false
 ```
+
+Visualization is handled by Foxglove in the browser (via the rosbridge server on
+port 9090), so there is no RViz launch argument.
 
 Keyboard teleoperation:
 
@@ -49,7 +52,9 @@ Common launch arguments (see `launch/bringup.launch.py` for the full list):
 | Argument | Default | Description |
 |---|---|---|
 | `use_sim` | `false` | Run against the simulated backend instead of hardware |
-| `use_rviz` | `true` | Start RViz2 visualization |
+| `use_leds` | `true` | Start the corner NeoPixel LED node |
+| `led_count` | `4` | Number of corner NeoPixels |
+| `led_brightness` | `0.4` | NeoPixel brightness (0.0–1.0) |
 | `port` | `/dev/ttyACM0` | Serial port of the ESP32 controller |
 | `baud` | `115200` | Serial baud rate |
 | `mecanum_layout` | `X` | Wheel roller layout (`X` or `O`) |
