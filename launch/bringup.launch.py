@@ -42,6 +42,9 @@ def generate_launch_description():
         "use_leds": ("true", "Start the corner NeoPixel LED node"),
         "led_count": ("4", "Number of corner NeoPixels"),
         "led_brightness": ("0.4", "NeoPixel brightness [0.0-1.0]"),
+        "use_imu": ("true", "Start the BNO085 IMU node"),
+        "imu_frame_id": ("imu_link", "frame_id for sensor_msgs/Imu messages"),
+        "imu_hz": ("100.0", "IMU publish rate [Hz]"),
     }
 
     declare_args = [
@@ -68,6 +71,9 @@ def generate_launch_description():
     use_leds = LaunchConfiguration("use_leds")
     led_count = LaunchConfiguration("led_count")
     led_brightness = LaunchConfiguration("led_brightness")
+    use_imu = LaunchConfiguration("use_imu")
+    imu_frame_id = LaunchConfiguration("imu_frame_id")
+    imu_hz = LaunchConfiguration("imu_hz")
 
     # Xacro file path (URDF)
     urdf_xacro = PathJoinSubstitution(
@@ -143,6 +149,23 @@ def generate_launch_description():
         ],
     )
 
+    # BNO085 IMU (I2C on the Raspberry Pi 5).
+    imu_node = Node(
+        package="edubot_hardware",
+        executable="imu_node",
+        name="imu_node",
+        namespace=ns,
+        output="screen",
+        condition=IfCondition(use_imu),
+        parameters=[
+            {
+                "use_sim": use_sim,
+                "frame_id": imu_frame_id,
+                "publish_hz": imu_hz,
+            }
+        ],
+    )
+
     # rosapi — exposes ROS services (topics, services, params) over rosbridge.
     # Must run alongside rosbridge_websocket so clients can introspect the graph.
     # rosapi/rosbridge are deliberately left un-namespaced (unlike the robot
@@ -179,6 +202,7 @@ def generate_launch_description():
             robot_state_publisher,
             hardware_node,
             led_node,
+            imu_node,
             rosapi_node,
             rosbridge_node,
         ]
