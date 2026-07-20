@@ -9,6 +9,7 @@ Starts:
 """
 
 from launch_ros.actions import Node
+from launch_ros.descriptions import ParameterValue
 from launch_ros.substitutions import FindPackageShare
 
 from launch import LaunchDescription
@@ -98,7 +99,7 @@ def generate_launch_description():
         output="screen",
         parameters=[
             {
-                "robot_description": Command(["xacro ", urdf_xacro]),
+                "robot_description": ParameterValue(Command(["xacro ", urdf_xacro]), value_type=str),
             }
         ],
     )
