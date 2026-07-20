@@ -18,6 +18,7 @@ from launch.conditions import IfCondition
 from launch.substitutions import (
     Command,
     LaunchConfiguration,
+    NotSubstitution,
     PathJoinSubstitution,
 )
 
@@ -46,6 +47,12 @@ def generate_launch_description():
         "use_imu": ("true", "Start the BNO085 IMU node"),
         "imu_frame_id": ("imu_link", "frame_id for sensor_msgs/Imu messages"),
         "imu_hz": ("100.0", "IMU publish rate [Hz]"),
+        "use_ekf": (
+            "true",
+            "Fuse wheel odometry + IMU with robot_localization (EKF). "
+            "When true the EKF owns the odom->base_link TF and hardware_node "
+            "stops broadcasting it.",
+        ),
     }
 
     declare_args = [
@@ -75,6 +82,7 @@ def generate_launch_description():
     use_imu = LaunchConfiguration("use_imu")
     imu_frame_id = LaunchConfiguration("imu_frame_id")
     imu_hz = LaunchConfiguration("imu_hz")
+    use_ekf = LaunchConfiguration("use_ekf")
 
     # Xacro file path (URDF)
     urdf_xacro = PathJoinSubstitution(
@@ -124,8 +132,32 @@ def generate_launch_description():
                 "log_commands": log_commands,
                 "odom_hz": odom_hz,
                 "tf_hz": tf_hz,
+                # When the EKF runs it owns the odom->base_link TF, so the
+                # hardware node must relinquish it (exactly one publisher).
+                "publish_tf": ParameterValue(
+                    NotSubstitution(use_ekf), value_type=bool
+                ),
             }
         ],
+    )
+
+    # robot_localization EKF: fuses /odom (wheel) + /imu/data (BNO085) into
+    # /odometry/filtered and broadcasts the fused odom->base_link transform.
+    ekf_config = PathJoinSubstitution(
+        [
+            FindPackageShare("edubot_bringup"),
+            "config",
+            "ekf.yaml",
+        ]
+    )
+    ekf_node = Node(
+        package="robot_localization",
+        executable="ekf_node",
+        name="ekf_filter_node",
+        namespace=ns,
+        output="screen",
+        condition=IfCondition(use_ekf),
+        parameters=[ekf_config],
     )
 
     # Corner status LEDs (NeoPixel over SPI on the Raspberry Pi 5).
@@ -204,6 +236,7 @@ def generate_launch_description():
             hardware_node,
             led_node,
             imu_node,
+            ekf_node,
             rosapi_node,
             rosbridge_node,
         ]

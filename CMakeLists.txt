@@ -9,4 +9,10 @@ install(
   DESTINATION share/${PROJECT_NAME}
 )
 
+# Install config files (e.g. ekf.yaml for robot_localization)
+install(
+  DIRECTORY config
+  DESTINATION share/${PROJECT_NAME}
+)
+
 ament_package()

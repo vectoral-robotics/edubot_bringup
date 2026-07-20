@@ -1,0 +1,83 @@
+# robot_localization EKF configuration for EduBot.
+#
+# Fuses wheel odometry (/odom from edubot_hardware) with the BNO085 IMU
+# (/imu/data) into a single filtered state, and owns the odom -> base_link TF.
+# When this runs, hardware_node must be started with publish_tf:=false so the
+# transform has exactly one publisher.
+#
+# Frames follow REP-105:  map -> odom -> base_link.  We estimate odom -> base_link
+# here (world_frame = odom); a map->odom correction would come from Nav2/AMCL later.
+#
+# Sensor fusion strategy (mecanum base):
+#   - Wheel odom contributes body velocities vx, vy, vyaw. Velocities (not
+#     absolute pose) are fused so wheel-slip drift is not integrated twice.
+#   - IMU contributes absolute yaw and yaw rate (vyaw) — the BNO085's fused
+#     rotation vector is far less drift-prone than wheel-derived heading, which
+#     is the main reason for adding the IMU on a mecanum robot.
+#
+# two_d_mode: true zeroes z / roll / pitch (and their velocities) — correct for
+# a ground robot feeding Nav2. If you ever want to *see* tilt in the model
+# (validation), set it false, but keep it true for navigation.
+
+ekf_filter_node:
+  ros__parameters:
+    frequency: 50.0
+    sensor_timeout: 0.1
+    two_d_mode: true
+    transform_time_offset: 0.0
+    transform_timeout: 0.0
+    print_diagnostics: true
+    debug: false
+
+    # This node publishes the odom -> base_link transform.
+    publish_tf: true
+    publish_acceleration: false
+
+    map_frame: map
+    odom_frame: odom
+    base_link_frame: base_link
+    world_frame: odom
+
+    # --- Wheel odometry (edubot_hardware) ---
+    # Order: x, y, z, roll, pitch, yaw, vx, vy, vz, vroll, vpitch, vyaw, ax, ay, az
+    odom0: /odom
+    odom0_config: [false, false, false,
+                   false, false, false,
+                   true,  true,  false,
+                   false, false, true,
+                   false, false, false]
+    odom0_queue_size: 10
+    odom0_differential: false
+    odom0_relative: false
+
+    # --- BNO085 IMU ---
+    # Absolute yaw + yaw rate. If the magnetometer is disturbed indoors (metal),
+    # set the yaw entry (6th flag) to false to rely on gyro rate only.
+    imu0: /imu/data
+    imu0_config: [false, false, false,
+                  false, false, true,
+                  false, false, false,
+                  false, false, true,
+                  false, false, false]
+    imu0_differential: false
+    imu0_relative: false
+    imu0_queue_size: 10
+    imu0_remove_gravitational_acceleration: true
+
+    # Process noise: how much the filter trusts its own motion model. Left at
+    # sensible defaults for a small indoor base; tune later if needed.
+    process_noise_covariance: [0.05, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
+                               0.0,  0.05, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
+                               0.0,  0.0,  0.06, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
+                               0.0,  0.0,  0.0,  0.03, 0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
+                               0.0,  0.0,  0.0,  0.0,  0.03, 0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
+                               0.0,  0.0,  0.0,  0.0,  0.0,  0.06, 0.0,  0.0,  0.0,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
+                               0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.025, 0.0, 0.0,  0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
+                               0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.025, 0.0, 0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
+                               0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.04, 0.0,   0.0,   0.0,   0.0,   0.0,   0.0,
+                               0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.01,  0.0,   0.0,   0.0,   0.0,   0.0,
+                               0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.01,  0.0,   0.0,   0.0,   0.0,
+                               0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.02,  0.0,   0.0,   0.0,
+                               0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,   0.01,  0.0,   0.0,
+                               0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,   0.0,   0.01,  0.0,
+                               0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,  0.0,   0.0,   0.0,   0.0,   0.0,   0.015]
