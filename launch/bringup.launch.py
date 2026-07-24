@@ -117,7 +117,9 @@ def generate_launch_description():
         output="screen",
         parameters=[
             {
-                "robot_description": ParameterValue(Command(["xacro ", urdf_xacro]), value_type=str),
+                "robot_description": ParameterValue(
+                    Command(["xacro ", urdf_xacro]), value_type=str
+                ),
             }
         ],
     )
@@ -144,9 +146,7 @@ def generate_launch_description():
                 "tf_hz": tf_hz,
                 # When the EKF runs it owns the odom->base_link TF, so the
                 # hardware node must relinquish it (exactly one publisher).
-                "publish_tf": ParameterValue(
-                    NotSubstitution(use_ekf), value_type=bool
-                ),
+                "publish_tf": ParameterValue(NotSubstitution(use_ekf), value_type=bool),
             }
         ],
     )
