@@ -5,10 +5,12 @@ Starts:
   - robot_state_publisher (URDF/Xacro)
   - edubot_hardware (real or simulated)
   - corner NeoPixel LED node (optional)
+    - speaker node (optional)
   - rosbridge WebSocket server
 """
 
 from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterValue
 from launch_ros.substitutions import FindPackageShare
 
 from launch import LaunchDescription
@@ -45,6 +47,8 @@ def generate_launch_description():
         "use_imu": ("true", "Start the BNO085 IMU node"),
         "imu_frame_id": ("imu_link", "frame_id for sensor_msgs/Imu messages"),
         "imu_hz": ("100.0", "IMU publish rate [Hz]"),
+        "use_speaker": ("true", "Start the speaker topic bridge node"),
+        "speaker_default_volume": ("80", "Default speaker volume [0-100]"),
     }
 
     declare_args = [
@@ -74,6 +78,8 @@ def generate_launch_description():
     use_imu = LaunchConfiguration("use_imu")
     imu_frame_id = LaunchConfiguration("imu_frame_id")
     imu_hz = LaunchConfiguration("imu_hz")
+    use_speaker = LaunchConfiguration("use_speaker")
+    speaker_default_volume = LaunchConfiguration("speaker_default_volume")
 
     # Xacro file path (URDF)
     urdf_xacro = PathJoinSubstitution(
@@ -98,7 +104,9 @@ def generate_launch_description():
         output="screen",
         parameters=[
             {
-                "robot_description": Command(["xacro ", urdf_xacro]),
+                "robot_description": ParameterValue(
+                    Command(["xacro ", urdf_xacro]), value_type=str
+                ),
             }
         ],
     )
@@ -166,6 +174,20 @@ def generate_launch_description():
         ],
     )
 
+    speaker_node = Node(
+        package="edubot_hardware",
+        executable="speaker_node",
+        name="speaker_node",
+        namespace=ns,
+        output="screen",
+        condition=IfCondition(use_speaker),
+        parameters=[
+            {
+                "default_volume": speaker_default_volume,
+            }
+        ],
+    )
+
     # rosapi — exposes ROS services (topics, services, params) over rosbridge.
     # Must run alongside rosbridge_websocket so clients can introspect the graph.
     # rosapi/rosbridge are deliberately left un-namespaced (unlike the robot
@@ -203,6 +225,7 @@ def generate_launch_description():
             hardware_node,
             led_node,
             imu_node,
+            speaker_node,
             rosapi_node,
             rosbridge_node,
         ]

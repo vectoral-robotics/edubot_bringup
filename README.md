@@ -11,6 +11,10 @@ the corner status LEDs (`led_node`), and a rosbridge WebSocket server (+ rosapi)
 that the dashboard and Foxglove connect to. It orchestrates the other packages
 rather than containing robot logic itself.
 
+It can also start a small speaker bridge node that listens to plain ROS topics
+for text and volume, which keeps Blockly and the web dashboard free from custom
+message packages.
+
 ## Installation
 
 Requires ROS 2 Humble. Build it in a colcon workspace together with the other
@@ -58,6 +62,8 @@ Common launch arguments (see `launch/bringup.launch.py` for the full list):
 | `port` | `/dev/ttyACM0` | Serial port of the ESP32 controller |
 | `baud` | `115200` | Serial baud rate |
 | `mecanum_layout` | `X` | Wheel roller layout (`X` or `O`) |
+| `use_speaker` | `true` | Start the speaker bridge node |
+| `speaker_default_volume` | `80` | Default speaker volume (0–100) |
 
 ## Contributing
 
