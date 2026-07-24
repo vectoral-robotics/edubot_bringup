@@ -1,3 +1,15 @@
+## v0.3.0 (2026-07-24)
+
+### Feat
+
+- **bringup**: merge speaker node into dev-alex (EKF + speaker combined)
+- **bringup**: fuse wheel odom + IMU with robot_localization EKF
+- **bringup**: add imu_node to launch description
+
+### Fix
+
+- **bringup**: wrap robot_description in ParameterValue to fix yaml parse error
+
 ## v0.2.0 (2026-07-20)
 
 ### Feat

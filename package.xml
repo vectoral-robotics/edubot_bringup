@@ -1,7 +1,7 @@
 <?xml version="1.0"?>
 <package format="3">
   <name>edubot_bringup</name>
-  <version>0.2.0</version>
+  <version>0.3.0</version>
   <description>Bringup launch files for the EduBot robot.</description>
 
   <maintainer email="info@vectoral.ch">Vectoral</maintainer>
