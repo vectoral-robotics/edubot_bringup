@@ -1,3 +1,9 @@
+## v0.2.0 (2026-07-20)
+
+### Feat
+
+- **bringup**: add imu_node to launch description
+
 ## v0.1.0 (2026-07-15)
 
 ### Feat
