@@ -5,10 +5,12 @@ Starts:
   - robot_state_publisher (URDF/Xacro)
   - edubot_hardware (real or simulated)
   - corner NeoPixel LED node (optional)
+    - speaker node (optional)
   - rosbridge WebSocket server
 """
 
 from launch_ros.actions import Node
+from launch_ros.parameter_descriptions import ParameterValue
 from launch_ros.substitutions import FindPackageShare
 
 from launch import LaunchDescription
@@ -17,6 +19,7 @@ from launch.conditions import IfCondition
 from launch.substitutions import (
     Command,
     LaunchConfiguration,
+    NotSubstitution,
     PathJoinSubstitution,
 )
 
@@ -45,6 +48,18 @@ def generate_launch_description():
         "use_imu": ("true", "Start the BNO085 IMU node"),
         "imu_frame_id": ("imu_link", "frame_id for sensor_msgs/Imu messages"),
         "imu_hz": ("100.0", "IMU publish rate [Hz]"),
+        "use_ekf": (
+            "true",
+            "Fuse wheel odometry + IMU with robot_localization (EKF). "
+            "When true the EKF owns the odom->base_link TF and hardware_node "
+            "stops broadcasting it.",
+        ),
+        "use_speaker": ("true", "Start the speaker topic bridge node"),
+        "speaker_default_volume": ("80", "Default speaker volume [0-100]"),
+        "speaker_alsa_device": (
+            "plughw:CARD=sndrpigooglevoi,DEV=0",
+            "ALSA output device used to play synthesized speech",
+        ),
     }
 
     declare_args = [
@@ -74,6 +89,10 @@ def generate_launch_description():
     use_imu = LaunchConfiguration("use_imu")
     imu_frame_id = LaunchConfiguration("imu_frame_id")
     imu_hz = LaunchConfiguration("imu_hz")
+    use_ekf = LaunchConfiguration("use_ekf")
+    use_speaker = LaunchConfiguration("use_speaker")
+    speaker_default_volume = LaunchConfiguration("speaker_default_volume")
+    speaker_alsa_device = LaunchConfiguration("speaker_alsa_device")
 
     # Xacro file path (URDF)
     urdf_xacro = PathJoinSubstitution(
@@ -98,7 +117,9 @@ def generate_launch_description():
         output="screen",
         parameters=[
             {
-                "robot_description": Command(["xacro ", urdf_xacro]),
+                "robot_description": ParameterValue(
+                    Command(["xacro ", urdf_xacro]), value_type=str
+                ),
             }
         ],
     )
@@ -123,8 +144,30 @@ def generate_launch_description():
                 "log_commands": log_commands,
                 "odom_hz": odom_hz,
                 "tf_hz": tf_hz,
+                # When the EKF runs it owns the odom->base_link TF, so the
+                # hardware node must relinquish it (exactly one publisher).
+                "publish_tf": ParameterValue(NotSubstitution(use_ekf), value_type=bool),
             }
         ],
+    )
+
+    # robot_localization EKF: fuses /odom (wheel) + /imu/data (BNO085) into
+    # /odometry/filtered and broadcasts the fused odom->base_link transform.
+    ekf_config = PathJoinSubstitution(
+        [
+            FindPackageShare("edubot_bringup"),
+            "config",
+            "ekf.yaml",
+        ]
+    )
+    ekf_node = Node(
+        package="robot_localization",
+        executable="ekf_node",
+        name="ekf_filter_node",
+        namespace=ns,
+        output="screen",
+        condition=IfCondition(use_ekf),
+        parameters=[ekf_config],
     )
 
     # Corner status LEDs (NeoPixel over SPI on the Raspberry Pi 5).
@@ -166,6 +209,21 @@ def generate_launch_description():
         ],
     )
 
+    speaker_node = Node(
+        package="edubot_hardware",
+        executable="speaker_node",
+        name="speaker_node",
+        namespace=ns,
+        output="screen",
+        condition=IfCondition(use_speaker),
+        parameters=[
+            {
+                "default_volume": speaker_default_volume,
+                "alsa_device": speaker_alsa_device,
+            }
+        ],
+    )
+
     # rosapi — exposes ROS services (topics, services, params) over rosbridge.
     # Must run alongside rosbridge_websocket so clients can introspect the graph.
     # rosapi/rosbridge are deliberately left un-namespaced (unlike the robot
@@ -203,6 +261,8 @@ def generate_launch_description():
             hardware_node,
             led_node,
             imu_node,
+            speaker_node,
+            ekf_node,
             rosapi_node,
             rosbridge_node,
         ]
