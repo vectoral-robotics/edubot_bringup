@@ -60,6 +60,10 @@ def generate_launch_description():
             "plughw:CARD=sndrpigooglevoi,DEV=0",
             "ALSA output device used to play synthesized speech",
         ),
+        "speaker_voice_model": (
+            "/opt/piper/voices/en_GB-alba-medium.onnx",
+            "Path to the Piper TTS voice model (.onnx) baked into the ROS image",
+        ),
     }
 
     declare_args = [
@@ -93,6 +97,7 @@ def generate_launch_description():
     use_speaker = LaunchConfiguration("use_speaker")
     speaker_default_volume = LaunchConfiguration("speaker_default_volume")
     speaker_alsa_device = LaunchConfiguration("speaker_alsa_device")
+    speaker_voice_model = LaunchConfiguration("speaker_voice_model")
 
     # Xacro file path (URDF)
     urdf_xacro = PathJoinSubstitution(
@@ -220,6 +225,7 @@ def generate_launch_description():
             {
                 "default_volume": speaker_default_volume,
                 "alsa_device": speaker_alsa_device,
+                "voice_model": speaker_voice_model,
             }
         ],
     )
