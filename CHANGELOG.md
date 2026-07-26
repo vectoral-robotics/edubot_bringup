@@ -1,3 +1,9 @@
+## v0.4.0 (2026-07-26)
+
+### Feat
+
+- **bringup**: pass Piper voice_model to speaker_node
+
 ## v0.3.0 (2026-07-24)
 
 ### Feat
