@@ -57,7 +57,7 @@ def generate_launch_description():
         "use_speaker": ("true", "Start the speaker topic bridge node"),
         "speaker_default_volume": ("80", "Default speaker volume [0-100]"),
         "speaker_alsa_device": (
-            "plughw:CARD=sndrpigooglevoi,DEV=0",
+            "plughw:0",
             "ALSA output device used to play synthesized speech",
         ),
         "speaker_voice_model": (
