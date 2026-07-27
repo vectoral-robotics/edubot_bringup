@@ -64,6 +64,10 @@ def generate_launch_description():
             "/opt/piper/voices/en_GB-alba-medium.onnx",
             "Path to the Piper TTS voice model (.onnx) baked into the ROS image",
         ),
+        "speaker_phrases_dir": (
+            "/opt/piper/phrases",
+            "Directory with pre-generated phrase WAVs for instant playback",
+        ),
     }
 
     declare_args = [
@@ -98,6 +102,7 @@ def generate_launch_description():
     speaker_default_volume = LaunchConfiguration("speaker_default_volume")
     speaker_alsa_device = LaunchConfiguration("speaker_alsa_device")
     speaker_voice_model = LaunchConfiguration("speaker_voice_model")
+    speaker_phrases_dir = LaunchConfiguration("speaker_phrases_dir")
 
     # Xacro file path (URDF)
     urdf_xacro = PathJoinSubstitution(
@@ -226,6 +231,7 @@ def generate_launch_description():
                 "default_volume": speaker_default_volume,
                 "alsa_device": speaker_alsa_device,
                 "voice_model": speaker_voice_model,
+                "phrases_dir": speaker_phrases_dir,
             }
         ],
     )
