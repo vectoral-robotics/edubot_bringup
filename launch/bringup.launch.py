@@ -61,7 +61,7 @@ def generate_launch_description():
             "ALSA output device used to play synthesized speech",
         ),
         "speaker_voice_model": (
-            "/opt/piper/voices/en_GB-alba-medium.onnx",
+            "/opt/piper/voices/en_US-lessac-high.onnx",
             "Path to the Piper TTS voice model (.onnx) baked into the ROS image",
         ),
         "speaker_phrases_dir": (
