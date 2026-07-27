@@ -69,11 +69,15 @@ def generate_launch_description():
             "Directory with pre-generated phrase WAVs for instant playback",
         ),
         "speaker_tail_silence_ms": (
-            "450",
+            "700",
             "Extra silence appended after each utterance to avoid end crackle",
         ),
+        "speaker_tail_fade_in_ms": (
+            "25",
+            "Fade-in duration applied at the start of each utterance",
+        ),
         "speaker_tail_fade_ms": (
-            "60",
+            "120",
             "Fade-out duration applied at the end of each utterance",
         ),
     }
@@ -112,6 +116,7 @@ def generate_launch_description():
     speaker_voice_model = LaunchConfiguration("speaker_voice_model")
     speaker_phrases_dir = LaunchConfiguration("speaker_phrases_dir")
     speaker_tail_silence_ms = LaunchConfiguration("speaker_tail_silence_ms")
+    speaker_tail_fade_in_ms = LaunchConfiguration("speaker_tail_fade_in_ms")
     speaker_tail_fade_ms = LaunchConfiguration("speaker_tail_fade_ms")
 
     # Xacro file path (URDF)
@@ -243,6 +248,7 @@ def generate_launch_description():
                 "voice_model": speaker_voice_model,
                 "phrases_dir": speaker_phrases_dir,
                 "tail_silence_ms": speaker_tail_silence_ms,
+                "tail_fade_in_ms": speaker_tail_fade_in_ms,
                 "tail_fade_ms": speaker_tail_fade_ms,
             }
         ],
