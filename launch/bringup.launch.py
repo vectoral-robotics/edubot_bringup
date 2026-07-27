@@ -68,6 +68,14 @@ def generate_launch_description():
             "/opt/piper/phrases",
             "Directory with pre-generated phrase WAVs for instant playback",
         ),
+        "speaker_tail_silence_ms": (
+            "450",
+            "Extra silence appended after each utterance to avoid end crackle",
+        ),
+        "speaker_tail_fade_ms": (
+            "60",
+            "Fade-out duration applied at the end of each utterance",
+        ),
     }
 
     declare_args = [
@@ -103,6 +111,8 @@ def generate_launch_description():
     speaker_alsa_device = LaunchConfiguration("speaker_alsa_device")
     speaker_voice_model = LaunchConfiguration("speaker_voice_model")
     speaker_phrases_dir = LaunchConfiguration("speaker_phrases_dir")
+    speaker_tail_silence_ms = LaunchConfiguration("speaker_tail_silence_ms")
+    speaker_tail_fade_ms = LaunchConfiguration("speaker_tail_fade_ms")
 
     # Xacro file path (URDF)
     urdf_xacro = PathJoinSubstitution(
@@ -232,6 +242,8 @@ def generate_launch_description():
                 "alsa_device": speaker_alsa_device,
                 "voice_model": speaker_voice_model,
                 "phrases_dir": speaker_phrases_dir,
+                "tail_silence_ms": speaker_tail_silence_ms,
+                "tail_fade_ms": speaker_tail_fade_ms,
             }
         ],
     )
