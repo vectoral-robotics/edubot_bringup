@@ -57,12 +57,28 @@ def generate_launch_description():
         "use_speaker": ("true", "Start the speaker topic bridge node"),
         "speaker_default_volume": ("80", "Default speaker volume [0-100]"),
         "speaker_alsa_device": (
-            "plughw:CARD=sndrpigooglevoi,DEV=0",
+            "plughw:0",
             "ALSA output device used to play synthesized speech",
         ),
         "speaker_voice_model": (
-            "/opt/piper/voices/en_GB-alba-medium.onnx",
+            "/opt/piper/voices/en_US-lessac-high.onnx",
             "Path to the Piper TTS voice model (.onnx) baked into the ROS image",
+        ),
+        "speaker_phrases_dir": (
+            "/opt/piper/phrases",
+            "Directory with pre-generated phrase WAVs for instant playback",
+        ),
+        "speaker_tail_silence_ms": (
+            "700",
+            "Extra silence appended after each utterance to avoid end crackle",
+        ),
+        "speaker_tail_fade_in_ms": (
+            "25",
+            "Fade-in duration applied at the start of each utterance",
+        ),
+        "speaker_tail_fade_ms": (
+            "120",
+            "Fade-out duration applied at the end of each utterance",
         ),
     }
 
@@ -98,6 +114,10 @@ def generate_launch_description():
     speaker_default_volume = LaunchConfiguration("speaker_default_volume")
     speaker_alsa_device = LaunchConfiguration("speaker_alsa_device")
     speaker_voice_model = LaunchConfiguration("speaker_voice_model")
+    speaker_phrases_dir = LaunchConfiguration("speaker_phrases_dir")
+    speaker_tail_silence_ms = LaunchConfiguration("speaker_tail_silence_ms")
+    speaker_tail_fade_in_ms = LaunchConfiguration("speaker_tail_fade_in_ms")
+    speaker_tail_fade_ms = LaunchConfiguration("speaker_tail_fade_ms")
 
     # Xacro file path (URDF)
     urdf_xacro = PathJoinSubstitution(
@@ -226,6 +246,10 @@ def generate_launch_description():
                 "default_volume": speaker_default_volume,
                 "alsa_device": speaker_alsa_device,
                 "voice_model": speaker_voice_model,
+                "phrases_dir": speaker_phrases_dir,
+                "tail_silence_ms": speaker_tail_silence_ms,
+                "tail_fade_in_ms": speaker_tail_fade_in_ms,
+                "tail_fade_ms": speaker_tail_fade_ms,
             }
         ],
     )
