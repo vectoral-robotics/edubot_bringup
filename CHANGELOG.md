@@ -1,3 +1,16 @@
+## v0.5.0 (2026-07-30)
+
+### Feat
+
+- **bringup**: add speaker fade-in launch parameter
+- **bringup**: expose speaker tail smoothing launch params
+- **bringup**: add phrases_dir speaker parameter
+
+### Fix
+
+- **bringup**: switch default voice model to en_US-lessac-high
+- **bringup**: default speaker ALSA device to plughw:0
+
 ## v0.4.0 (2026-07-26)
 
 ### Feat
